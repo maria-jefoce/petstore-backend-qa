@@ -1,0 +1,393 @@
+{
+	"info": {
+		"_postman_id": "3c04442c-7fce-4ddb-8671-b8bc07199151",
+		"name": "User Management API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24311369",
+		"_collection_link": "https://www.postman.com/mission-architect-95361293/workspace/petstore-api-testing/collection/24311369-3c04442c-7fce-4ddb-8671-b8bc07199151?action=share&source=collection_link&creator=24311369"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Post-Response Script for User Management API\r",
+							"// This script validates the response received after making an API request for user management.\r",
+							"// Each user has a unique ID, username, email, and password to ensure the tests are independent and repeatable.\r",
+							"\r",
+							"\r",
+							"// Check if the response status code is 200 (OK)\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Validate that the response message contains the correct user ID\r",
+							"pm.test(\"Message contains correct userId\", function () {\r",
+							"    const userId = pm.environment.get(\"userId\"); // Retrieve the generated user ID from the environment\r",
+							"    const responseJson = pm.response.json(); // Parse the response body to JSON\r",
+							"\r",
+							"    // Check that the message includes the user ID as a string\r",
+							"\t\tpm.expect(responseJson.message).to.include(String(userId));\r",
+							"});\r",
+							"\r",
+							"// Validate that the username was set and log the username after creation\r",
+							"pm.test(\"Check if username is set\", function () {\r",
+							"    pm.expect(pm.environment.get(\"username\")).to.exist; // Ensure that the username exists in the environment\r",
+							"    console.log(\"Username after creation:\", pm.environment.get(\"username\")); // Log the username for debugging purposes\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Pre-Request Script for User Management API\r",
+							"// This script generates dynamic user data to be used in the API request.\r",
+							"// Each user has a unique ID, username, email, and password.\r",
+							"\r",
+							"// Generate a random user ID between 0 and 999\r",
+							"const userId = Math.floor(Math.random() * 1000);\r",
+							"\r",
+							"// Create a unique username by combining 'user_' with the user ID\r",
+							"const username = `user_${userId}`;\r",
+							"\r",
+							"// Create a unique email address using the user ID\r",
+							"const email = `user_${userId}@example.com`;\r",
+							"\r",
+							"// Generate a random password with a prefix 'Password_' followed by 8 random alphanumeric characters\r",
+							"const password = `Password_${Math.random().toString(36).substr(2, 8)}`;\r",
+							"\r",
+							"// Set the generated values in the Postman environment for later use in requests\r",
+							"pm.environment.set(\"userId\", userId); \r",
+							"pm.environment.set(\"username\", username);\r",
+							"pm.environment.set(\"firstname\", \"Max\"); // Set the first name\r",
+							"pm.environment.set(\"lastname\", \"Dilan\");  // Set the last name\r",
+							"pm.environment.set(\"email\", email); \r",
+							"pm.environment.set(\"password\", password); \r",
+							"pm.environment.set(\"phone\", \"+123456789\");  // Set a static phone number\r",
+							"pm.environment.set(\"userstatus\", 1); // Set user status to active (1)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKey",
+						"value": "special-key",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\":  {{userId}},\r\n  \"username\": \"{{username}}\",\r\n  \"firstname\": \"{{firstname}}\",\r\n  \"lastname\": \"{{lastname}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"phone\": \"{{phone}}\",\r\n  \"userstatus\": {{userstatus}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{petstore}}/user",
+					"host": [
+						"{{petstore}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Post-Response Script for User Management API\r",
+							"// This script validates the response received after making an API request for user management.\r",
+							"// It checks the status code, verifies the presence of required fields, and validates the correctness of the retrieved user data.\r",
+							"\r",
+							"// Check if the response status code is 200 (OK)\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Assert that the response status is 200\r",
+							"});\r",
+							"\r",
+							"// Validate that the response contains all required fields\r",
+							"pm.test(\"Response contains required fields\", function () {\r",
+							"    const responseJson = pm.response.json(); // Parse the response body to JSON\r",
+							"\r",
+							"\t\t// Check for the presence of required properties in the response\r",
+							"    pm.expect(responseJson).to.have.property(\"id\"); \r",
+							"    pm.expect(responseJson).to.have.property(\"username\");\r",
+							"    pm.expect(responseJson).to.have.property(\"email\");\r",
+							"    pm.expect(responseJson).to.have.property(\"password\");\r",
+							"    pm.expect(responseJson).to.have.property(\"phone\");\r",
+							"    pm.expect(responseJson).to.have.property(\"userStatus\");\r",
+							"});\r",
+							"\r",
+							"// Validate the correctness of retrieved user data against expected values\r",
+							"pm.test(\"Validate correctness of retrieved user data\", function () {\r",
+							"    const responseJson = pm.response.json(); // Parse the response body to JSON\r",
+							"\t\t\r",
+							"\t\t// Check that the retrieved user ID matches the one stored in the environment\r",
+							"    pm.expect(responseJson.id).to.equal(pm.environment.get(\"userId\"));\r",
+							"\r",
+							"\t\t// Validate that the retrieved username matches the one stored in the environment\r",
+							"    pm.expect(responseJson.username).to.equal(pm.environment.get(\"username\"));\r",
+							"\r",
+							"\t\t// Validate that the retrieved email matches the one stored in the environment\r",
+							"    pm.expect(responseJson.email).to.equal(pm.environment.get(\"email\"));\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "ApiKey",
+						"value": "special-key",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{petstore}}/user/{{username}}",
+					"host": [
+						"{{petstore}}"
+					],
+					"path": [
+						"user",
+						"{{username}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change User Data",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Pre-Request Script for updating user data in User Management API\r",
+							"// This script generates new dynamic values for the username and email to be used in the update API request.\r",
+							"// It ensures that the test data remains unique and identifiable.\r",
+							"\r",
+							"// Generate a new username by prefixing 'updated_user_' with the existing user ID from the environment\r",
+							"const updatedUsername = `updated_user_${pm.environment.get(\"userId\")}`;\r",
+							"// Store the updated username in the Postman environment for use in the API request\r",
+							"pm.environment.set(\"updatedUsername\", updatedUsername);\r",
+							"// Log the updated username for debugging purposes\r",
+							"console.log(\"Updated Username:\", updatedUsername);\r",
+							"\r",
+							"\r",
+							"// Generate a new email address by prefixing 'updated_' with the user ID and appending '@example.com'\r",
+							"const updatedEmail = `updated_${pm.environment.get(\"userId\")}@example.com`;\r",
+							"// Store the updated email in the Postman environment for use in the API request\r",
+							"pm.environment.set(\"updatedEmail\", updatedEmail);\r",
+							"// Log the updated email for debugging purposes\r",
+							"console.log(\"Updated Email:\", updatedEmail);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Post-Response Script for User Management API\r",
+							"// This script validates the response received after attempting to update user data.\r",
+							"// It checks if the update operation was successful by verifying the response status code.\r",
+							"\r",
+							"// Check if the response status code is 200 (OK), indicating the user was updated successfully\r",
+							"pm.test(\"User updated successfully\", function () {\r",
+							"    pm.response.to.have.status(200);  // Assert that the response status is 200\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "ApiKey",
+						"value": "special-key",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": {{userId}},\r\n    \"username\": \"{{updatedUsername}}\",\r\n    \"firstName\": \"{{firstname}}\",\r\n    \"lastName\": \"{{lastname}}\",\r\n    \"email\": \"{{updatedEmail}}\", \r\n    \"password\": \"{{password}}\",\r\n    \"phone\": \"{{phone}}\",\r\n    \"userStatus\": {{userstatus}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{petstore}}/user/{{username}}",
+					"host": [
+						"{{petstore}}"
+					],
+					"path": [
+						"user",
+						"{{username}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Updated User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Post-Response Script for User Management API\r",
+							"// This script validates the response received after an API request to update user data.\r",
+							"// It checks the status code and verifies that the updated username and email match the expected values.\r",
+							"\r",
+							"// Check if the response status code is 200 (OK), indicating the update was successful\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Assert that the response status is 200\r",
+							"});\r",
+							"\r",
+							"// Validate that the username in the response matches the expected updated username\r",
+							"pm.test(\"Username is updated correctly\", function () {\r",
+							"    const jsonData = pm.response.json();// Parse the response body to JSON\r",
+							"    // Check that the username in the response equals the updated username stored in the environment\r",
+							"    pm.expect(jsonData.username).to.eql(pm.environment.get(\"updatedUsername\"));\r",
+							"});\r",
+							"\r",
+							"// Validate that the email in the response matches the expected updated email\r",
+							"pm.test(\"Email is updated correctly\", function () {\r",
+							"    const jsonData = pm.response.json();// Parse the response body to JSON\r",
+							"    // Check that the email in the response equals the updated email stored in the environment\r",
+							"    pm.expect(jsonData.email).to.eql(pm.environment.get(\"updatedEmail\"));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "ApiKey",
+						"value": "special-key",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{petstore}}/user/{{updatedUsername}}",
+					"host": [
+						"{{petstore}}"
+					],
+					"path": [
+						"user",
+						"{{updatedUsername}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Post-Response Script for User Management API\r",
+							"// This script validates the response received after an API request to update user data.\r",
+							"// It checks the status code and verifies that the response message contains the expected updated username.\r",
+							"\r",
+							"// Check if the response status code is 200 (OK), indicating the update was successful\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Assert that the response status is 200\r",
+							"});\r",
+							"\r",
+							"// Validate that the response message contains the updated username\r",
+							"pm.test(\"Response message contains updatedUsername\", function () {\r",
+							"    const responseJson = pm.response.json(); // Parse the response body to JSON\r",
+							"\r",
+							"    // Check that the response message includes the updated username from the environment\r",
+							"    pm.expect(responseJson.message).to.include(pm.environment.get(\"updatedUsername\"));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "ApiKey",
+						"value": "special-key",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{petstore}}/user/{{updatedUsername}}",
+					"host": [
+						"{{petstore}}"
+					],
+					"path": [
+						"user",
+						"{{updatedUsername}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "petstore",
+			"value": "https://petstore.swagger.io/v2"
+		}
+	]
+}
